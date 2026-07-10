@@ -1,5 +1,9 @@
 site_name: Protein AI Documentation
+site_description: Documentation of a machine learning project for predicting protein optimal temperature.
+site_author: Antonio Micó
 site_url: https://amicosa.github.io/protein-temperature-prediction-docs/
+repo_url: https://github.com/amicosa/protein-temperature-prediction-docs
+repo_name: amicosa/protein-temperature-prediction-docs
 
 docs_dir: docs
 site_dir: site
@@ -7,10 +11,65 @@ site_dir: site
 theme:
   name: material
 
+  palette:
+    - scheme: default
+      primary: blue
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+
+    - scheme: slate
+      primary: blue
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+
+plugins:
+  - search
+
 markdown_extensions:
-  - pymdownx.superfences
+  - admonition
+
+  - pymdownx.details
+
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+  - pymdownx.highlight:
+      anchor_linenums: true
+
+  - pymdownx.inlinehilite
+
+  - pymdownx.snippets
+
   - pymdownx.tabbed:
       alternate_style: true
+
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+  - tables
+
+  - toc:
+      permalink: true
 
 extra_javascript:
   - https://unpkg.com/mermaid@11/dist/mermaid.min.js
@@ -22,18 +81,22 @@ nav:
   - Motivation: motivation.md
   - Methodology: methodology.md
   - Datasets: datasets.md
+
   - Models:
       - Baseline: models/baseline.md
       - CNN: models/cnn.md
       - Embeddings: models/embeddings.md
       - Future Models: models/future-models.md
+
   - Experiments:
       - Experiment 001: experiments/experiment-001.md
       - Experiment 002: experiments/experiment-002.md
+
   - Results:
       - Metrics: results/metrics.md
       - Error Analysis: results/error-analysis.md
       - Visualizations: results/visualizations.md
+
   - Roadmap: roadmap.md
   - Changelog: changelog.md
   - Bibliography: bibliography.md
