@@ -1,4 +1,8 @@
 site_name: Protein AI Documentation
+site_url: https://amicosa.github.io/protein-temperature-prediction-docs/
+
+docs_dir: docs
+site_dir: site
 
 theme:
   name: material
