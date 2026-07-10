@@ -3,6 +3,11 @@ site_name: Protein AI Documentation
 theme:
   name: material
 
+markdown_extensions:
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
 nav:
   - Home: index.md
   - Project Overview: project-overview.md
