@@ -1,0 +1,26 @@
+site_name: Protein AI Documentation
+
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - Project Overview: project-overview.md
+  - Motivation: motivation.md
+  - Methodology: methodology.md
+  - Datasets: datasets.md
+  - Models:
+      - Baseline: models/baseline.md
+      - CNN: models/cnn.md
+      - Embeddings: models/embeddings.md
+      - Future Models: models/future-models.md
+  - Experiments:
+      - Experiment 001: experiments/experiment-001.md
+      - Experiment 002: experiments/experiment-002.md
+  - Results:
+      - Metrics: results/metrics.md
+      - Error Analysis: results/error-analysis.md
+      - Visualizations: results/visualizations.md
+  - Roadmap: roadmap.md
+  - Changelog: changelog.md
+  - Bibliography: bibliography.md
