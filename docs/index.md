@@ -25,16 +25,16 @@ Use the tabs below to switch between English and Spanish.
 
     ```mermaid
     graph LR
-        A[Download UniProt\nRuBisCO + archaea] --> B[Cleaning and tokenization]
+        A["Download UniProt\nRuBisCO + archaea"] --> B["Cleaning and tokenization"]
         B --> C[Enrichment with TEMPURA]
         
-        C --> D[Branch 1: Vectorization\nwith ESMFeatureExtractor]
-        C --> E[Branch 2: Multiple\nSequence Alignment]
+        C --> D["Vectorization\nwith ESMFeatureExtractor"]
+        C --> E["Multiple\nSequence Alignment"]
         
-        D --> F[Train Ensemble Models\n(RF, GB, SVM)]
-        E --> G[Train CNN on\nPositional Embeddings]
+        D --> F["Train Ensemble Models\n(RF, GB, SVM)"]
+        E --> G["Train CNN on\nPositional Embeddings"]
         
-        F --> H[Evaluation &\nComparison]
+        F --> H["Evaluation &\nComparison"]
         G --> H
     ```
 
@@ -62,15 +62,15 @@ Use the tabs below to switch between English and Spanish.
 
     ```mermaid
     graph LR
-        A[Descarga UniProt\nRuBisCO + arqueas] --> B[Limpieza y tokenización]
+        A["Descarga UniProt\nRuBisCO + arqueas"] --> B["Limpieza y tokenización"]
         B --> C[Enriquecimiento con TEMPURA]
         
-        C --> D[Branch 1: Vectorizaciónn\ncon ESMFeatureExtractor]
-        C --> E[Branch 2: Alineamiento\nMúltiple de Secuencias]
+        C --> D["Vectorizaciónn\ncon ESMFeatureExtractor"]
+        C --> E["Alineamiento\nMúltiple de Secuencias"]
         
-        D --> F[Entrenamiento y ensamblaje de modelos\n(RF, GB, SVM)]
-        E --> G[Entrenaiento de CNN con\nEmbeddings Posicionales]
+        D --> F["Entrenamiento y ensamblaje de modelos\n(RF, GB, SVM)"]
+        E --> G["Entrenaiento de CNN con\nEmbeddings Posicionales"]
         
-        F --> H[Evaluación y\nComparación]
+        F --> H["Evaluación y\nComparación"]
         G --> H
     ```
