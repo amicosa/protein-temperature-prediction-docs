@@ -305,14 +305,265 @@ En conjunto, el scatter plot del apartado anterior y el boxplot confirman que, a
 
 ## Train / Validation / Test split
 
+La correcta partición del conjunto de datos es un paso crítico para garantizar la evaluación objetiva de los modelos y evitar el sobreajuste. En este proyecto, se han implementado dos estrategias de división diferentes, adaptadas a la naturaleza de cada arquitectura de modelo.
 
-## Biases and limitations
+### Proporciones y semilla aleatoria
 
+Tanto para los modelos basados en ensemble como para la red neuronal convolucional (CNN), se ha empleado una división **80/20** entre el conjunto de entrenamiento y el de evaluación.
+
+Para garantizar la reproducibilidad de los experimentos, se fijó una semilla aleatoria común (`random_state = 42`) en todas las funciones de partición. Esta decisión asegura que, al re-ejecutar el pipeline de entrenamiento, se obtengan exactamente los mismos subconjuntos de datos para entrenar y evaluar los modelos.
+
+### Estratificación
+
+Debido al **fuerte desbalanceo entre clases térmicas** identificado en la sección de análisis de datos (con una clara infrarrepresentación de los organismos termófilos), la simple división aleatoria podría haber producido conjuntos de prueba desequilibrados. Para mitigar este problema, se implementó una estrategia de estratificación personalizada en la función `stratified_split_simple` del módulo `train_predict.py`.
+
+Esta estrategia consiste en:
+
+1. **Agrupación por rangos térmicos:** Se dividen las temperaturas óptimas en cinco categorías (bins): `0-20°C`, `20-40°C`, `40-60°C`, `60-80°C` y `80-100°C`.
+
+2. **División proporcional por grupo:** Dentro de cada categoría, las muestras se mezclan aleatoriamente y se extrae un porcentaje fijo (test_size = 0.2) para formar parte del conjunto de test, garantizando que todas las categorías térmicas estén representadas en la evaluación en la misma proporción que en el conjunto original.
+
+3. **Fallback de seguridad:** En el caso improbable de que alguna categoría contenga menos de 2 muestras (lo que haría imposible la estratificación), el sistema recurre automáticamente a una división aleatoria simple para evitar errores.
+
+Cabe destacar que, para el entrenamiento del modelo **CNN posicional** (`5_Positional_training.ipynb`), no se aplicó esta estratificación, sino que se utilizó una división aleatoria simple mediante train_test_split de scikit-learn, dado que el objetivo principal era monitorizar la curva de pérdida para aplicar early stopping.
+
+### Prevención del Data Leakage
+
+El **data leakage** (fuga de información) es uno de los errores más comunes en el desarrollo de modelos, y ocurre cuando información del conjunto de test se filtra al proceso de entrenamiento. Para evitarlo, se han seguido las siguientes buenas prácticas en el pipeline:
+
+* **Partición antes del entrenamiento:** La división de los datos en conjuntos disjuntos se realiza antes de iniciar el ciclo de entrenamiento. Esto garantiza que ninguna secuencia o embedding utilizado para ajustar los pesos del modelo haya sido visto durante la evaluación.
+
+* **Escalado de características (SVR):** En el caso específico del modelo SVR, el `StandardScaler` se ajusta (*fit*) exclusivamente sobre los datos de entrenamiento (`X_train`). Posteriormente, esa misma transformación se aplica a `X_test` utilizando el método `.transform()`, evitando que los parámetros de normalización se vean influenciados por los datos de evaluación.
+
+* **Independencia del alineamiento:** Para el modelo posicional, el alineamiento de secuencias se realiza sobre la totalidad del conjunto de datos. Sin embargo, dado que se trata de un **alineamiento por pares** contra una referencia fija (no un alineamiento múltiple progresivo que dependa de otras secuencias), la información posicional de cada secuencia es independiente del resto. Por lo tanto, el proceso de alineamiento no introduce fuga de información entre los conjuntos de train y test.
+
+### Validación Cruzada Interna
+
+Un aspecto adicional a destacar es que, para los modelos clásicos (Random Forest, Gradient Boosting, SVR y Ensemble), el conjunto de entrenamiento (el 80% de los datos) se sometió a una validación cruzada de 5 folds (5-CV). Esta técnica divide el conjunto de entrenamiento en 5 subconjuntos, entrenando el modelo en 4 de ellos y validando en el restante de forma iterativa. Esto proporciona una estimación mucho más robusta del rendimiento del modelo durante el desarrollo, antes de realizar la evaluación final sobre el 20% de test completamente aislado.
+
+## Sesgos y limitaciones
+
+A pesar de los esfuerzos por construir un conjunto de datos amplio y representativo, el proceso de integración entre UniProt y TEMPURA, unido a la naturaleza de la propia literatura científica, introduce una serie de sesgos sistemáticos que deben ser reconocidos antes de interpretar el rendimiento de los modelos. Estos sesgos no invalidan el estudio, pero sí acotan el alcance de sus conclusiones y determinan los escenarios en los que los modelos pueden generalizar con confianza.
+
+### Sesgo taxonómico (Dominio y Género)
+
+El análisis de la composición taxonómica ha revelado una distribución de dominios que se aleja de la diversidad biológica real.
+
+Sobrerrepresentación de Eukaryota y Archaea: Las secuencias de plantas y algas (Eukaryota, 892 proteínas) y de arqueas termófilas (Archaea, 771 proteínas) constituyen conjuntamente el 83 % del dataset.
+
+Infrarrepresentación de Bacteria: A pesar de que las bacterias representan la mayor parte de la diversidad procariota y son responsables de gran parte de la fijación de carbono en ecosistemas marinos y terrestres, solo contribuyen con 336 proteínas (16,8 %).
+
+A nivel de género, el sesgo es aún más extremo. El dataset está dominado por géneros de arqueas hipertermófilas (Pyrococcus, Methanocaldococcus, Saccharolobus, Thermococcus), que acumulan la mayor parte de las secuencias. Lupinus (plantas) y Nostoc (cianobacterias) son los únicos representantes no arqueanos que logran colarse en el top 10.
+
+Implicación: Los modelos tendrán una capacidad de generalización mucho mayor para predecir la temperatura de plantas y arqueas hipertermófilas que para bacterias mesófilas o termófilas.
+
+### Sesgo térmico (El "missing middle")
+
+El desequilibrio taxonómico se traduce directamente en un fuerte desbalanceo en la variable objetivo. La distribución de temperaturas óptimas es claramente bimodal, con dos picos principales:
+
+Mesófilos (< 45 °C): 916 proteínas.
+
+Hipertermófilos (≥ 80 °C): 959 proteínas.
+
+Termófilos (45–80 °C): Tan solo 125 proteínas.
+
+Esta marcada infrarrepresentación del rango intermedio (entre 45 °C y 80 °C) tiene implicaciones críticas para el aprendizaje automático. Aunque la función de pérdida (MSE) promediará los errores, los modelos tenderán a optimizar su rendimiento en los rangos bajo y alto, donde hay abundancia de datos, a costa de un peor desempeño en el rango intermedio.
+
+### Sesgo de muestreo y publicación (Publication Bias)
+
+La fuente de los datos, principalmente la literatura científica curada en UniProt y las mediciones experimentales de TEMPURA, introduce un sesgo de publicación inevitable.
+
+* **Modelos biológicos clásicos:** Eukaryota está sobrerrepresentada porque la RuBisCO de plantas (como *Arabidopsis* o *Spinacia*) es uno de los modelos más estudiados en fisiología vegetal y bioquímica.
+
+* **Interés biotecnológico:** Las arqueas hipertermófilas (como *Pyrococcus* o *Thermococcus*) son extremadamente populares en biotecnología debido a sus enzimas termoestables, lo que explica la enorme cantidad de secuencias depositadas en UniProt.
+
+* **Menor atención a bacterias mesófilas/termófilas:** Muchas bacterias ambientales, a pesar de su importancia ecológica, han sido menos secuenciadas y estudiadas en el contexto de la termoestabilidad de sus proteínas, lo que explica su infrarrepresentación en este dataset.
+
+Este sesgo implica que los resultados de este estudio son particularmente relevantes para organismos modelo y de interés biotecnológico, pero podrían no extrapolarse con la misma precisión a la diversidad bacteriana menos caracterizada.
+
+### Sesgo de datos faltantes (Missing Data)
+
+Como se mencionó en el análisis de valores ausentes, **314 de las 2.000 secuencias (15,7 %)** no pudieron ser etiquetadas con una temperatura óptima tras el cruce con TEMPURA. El análisis cualitativo de estos registros indica que la gran mayoría corresponden a **organismos eucariotas** (principalmente algas y plantas no modelo) y a **bacterias** no termófilas.
+
+La ausencia de estos datos tiene un doble efecto:
+
+1. **Reduce el tamaño muestral** ya limitado para el rango intermedio de temperaturas.
+
+2. **Refuerza el sesgo taxonómico**, ya que las muestras perdidas pertenecen en su mayoría a los grupos ya infrarrepresentados (Bacteria y Eucariotas no modelo), exacerbando la dominancia de las arqueas hipertermófilas en el conjunto de entrenamiento final.
+
+### Implicaciones para el rendimiento de los modelos
+
+La combinación de los sesgos descritos tiene consecuencias directas en el rendimiento esperado de los modelos entrenados (Random Forest, Ensemble y CNN posicional):
+
+* **Alta precisión en los extremos:** Se espera que los modelos predigan con gran precisión temperaturas en torno a 25 °C (plantas) y 85–100 °C (arqueas hipertermófilas), ya que son las regiones mejor muestreadas.
+
+* **Baja fiabilidad en el rango medio (45–80 °C):** Cualquier predicción en el rango termófilo debe interpretarse con extrema cautela. Los modelos carecen de ejemplos suficientes para aprender las relaciones estructura-función específicas de este nicho térmico.
+
+* **Dependencia del grupo taxonómico:** Los modelos probablemente aprenderán a inferir la temperatura a partir de patrones filogenéticos (por ejemplo, si una secuencia es de una arquea, predecir alta temperatura; si es de una planta, predecir baja temperatura) en lugar de aprender propiedades fisicoquímicas intrínsecas de la secuencia. Esto es un riesgo de shortcut learning (atajo) que debe ser evaluado en experimentos de validación cruzada con taxones excluidos.
+
+**Conclusión de las limitaciones:** Este dataset es una herramienta excelente para explorar la relación entre secuencia y estabilidad térmica en **organismos modelo y extremófilos**, pero no es un conjunto representativo de toda la diversidad de la enzima RuBisCO en la naturaleza. Las conclusiones extraídas de los modelos deben ser consideradas como **hipótesis biológicas robustas dentro de estos nichos ecológicos**, en lugar de leyes universales aplicables a cualquier organismo.
 
 ## Licensing
 
+El respeto por los términos de uso de las fuentes de datos y la propiedad intelectual es un pilar fundamental de este proyecto. Aunque el objetivo es desarrollar un flujo de trabajo reproducible, se ha prestado especial atención a no infringir las licencias de las bases de datos utilizadas.
+
+### UniProt
+
+**UniProt** se distribuye bajo la licencia **Creative Commons Attribution-NoDerivatives (CC BY-ND 4.0)**. Esto permite a los usuarios utilizar, descargar y redistribuir libremente los datos, siempre que se atribuya correctamente la fuente y no se modifiquen las anotaciones originales.
+En este proyecto, la obtención de datos se realiza exclusivamente a través de la API REST pública de UniProt, cumpliendo estrictamente con sus términos de servicio y políticas de uso. Todas las secuencias descargadas se utilizan únicamente con fines de investigación no comercial.
+
+### TEMPURA
+
+**TEMPURA** (Database of Growth TEMPERatures of Usual and Rare Prokaryotes) está sujeta a una **licencia académica específica**. Aunque su uso con fines de investigación está generalmente permitido, la **redistribución directa del conjunto de datos original está restringida** por sus términos de uso.
+
+### Política de redistribución y acceso a los datos
+
+Para garantizar el cumplimiento de las licencias mencionadas, este proyecto adopta las siguientes prácticas:
+
+* **No redistribución de datos originales:** El repositorio del proyecto **no incluye, ni ha incluido en ningún momento, copias de los datasets originales** de TEMPURA o de las descargas masivas desde UniProt.
+
+* **Flujo de trabajo basado en scripts:** Toda la construcción del dataset se realiza mediante scripts que actúan sobre las APIs públicas. De esta forma, cualquier investigador que desee replicar el estudio puede hacerlo utilizando las mismas fuentes de datos, manteniendo la trazabilidad y evitando la distribución de materiales sujetos a derechos de autor.
+
+* **Documentación de los métodos:** Se proporcionan instrucciones claras sobre cómo configurar el entorno y ejecutar el proceso de descarga y preprocesamiento.
+
+### Código fuente y documentación
+
+Como parte de la estrategia de ciencia abierta, la **documentación generada** (incluyendo este archivo descriptivo, las estadísticas del dataset y la metodología de preprocesamiento) se comparte públicamente para garantizar la transparencia y la reproducibilidad de los resultados.
+
+Sin embargo, el **código fuente interno** del pipeline de descarga y procesamiento es de carácter privado, tal como se ha establecido en los objetivos iniciales del proyecto. Los scripts de descarga se documentan conceptualmente en esta guía, permitiendo a otros investigadores comprender el proceso sin necesidad de acceder al código subyacente. Esto equilibra la protección de la propiedad intelectual con el compromiso de compartir el conocimiento y la metodología con la comunidad científica.
 
 ## Reproductibility
 
+A pesar de que el código fuente del pipeline de integración y procesamiento es de carácter privado, este proyecto está diseñado bajo un firme compromiso con la **reproducibilidad metodológica**. Cualquier investigador o estudiante con conocimientos intermedios de Python y bioinformática puede replicar los resultados presentados en este estudio siguiendo el protocolo detallado a continuación.
 
-## Future improvements
+Para garantizar la reproducibilidad, se han seguido las mejores prácticas en cuanto al registro de versiones, trazabilidad de los datos y especificación del entorno. El flujo de trabajo se puede dividir en las siguientes etapas perfectamente documentadas:
+
+### Entorno y dependencias
+El desarrollo se ha llevado a cabo utilizando Python 3.10.20. Las bibliotecas esenciales y sus versiones específicas para garantizar la compatibilidad son las siguientes (extraídas del archivo requirements.txt del proyecto):
+
+`pandas==2.2.3`
+
+`numpy==1.26.4`
+
+`scikit-learn==1.6.1`
+
+`torch==2.5.1` (con soporte CUDA 12.1 a través del índice de PyTorch)
+
+`transformers==4.48.3`
+
+`biopython==1.87`
+
+`h5py==3.16.0`
+
+`matplotlib==3.9.3`
+
+`seaborn==0.13.2`
+
+`requests==2.32.3`
+
+`joblib==1.4.2`
+
+`tqdm==4.67.1`
+
+`plotly==6.9.0`
+
+!!! note "Nota"
+    Para el entrenamiento del modelo posicional en Google Colab, se recomienda instalar las versiones específicas de `torch` con soporte CUDA tal como se detalla en el notebook `5_Positional_training.ipynb`. El archivo `requirements.txt` del proyecto incluye comentarios detallados para la instalación correcta en función de la versión de CUDA disponible en el sistema (11.8, 12.1, 12.4, etc.).
+
+### Adquisición y trazabilidad de los datos originales
+
+Para replicar la construcción del dataset, se deben obtener las siguientes fuentes en sus fechas de acceso originales:
+
+* **UniProt (descarga de secuencias):**
+
+    * Fecha de acceso: **30 de junio de 2026**.
+
+    * Script utilizado: `src/utils/download_data.py`.
+
+    * Endpoint de la API: `https://rest.uniprot.org/uniprotkb/search`.
+
+    * Parámetros de la consulta: La función `descargar_secuencias_uniprot` ejecuta una búsqueda compuesta que combina el gen `rbcL`, el nombre de la proteína ("Ribulose bisphosphate carboxylase"), términos específicos para arqueas termófilas (*Pyrococcus*, *Thermococcus*, etc.) y la búsqueda explícita de "RuBisCO type III".
+
+    * El proceso descargó, limpió y eliminó duplicados basándose en el identificador `Entry`.
+
+* **TEMPURA (cruces taxonómicos):**
+
+    * Fecha de acceso/versión descargada: **30 de junio de 2026** (archivo `200617_TEMPURA.csv`).
+
+    * La base de datos se utilizó exclusivamente para enriquecer las secuencias con los valores `T_min`, `T_opt` y `T_max`.
+
+### Protocolo de preprocesamiento y limpieza
+
+El conjunto de datos final (2.000 secuencias) se construyó siguiendo rigurosamente el siguiente pipeline, que ha sido documentado conceptualmente en la sección Construcción del dataset de esta guía y codificado en los scripts `src/utils/data_enricher.py` y `src/utils/download_data.py`:
+
+1. **Limpieza inicial:** Normalización de caracteres y eliminación de espacios en las secuencias mediante la función limpiar_y_tokenizar.
+
+2. **Tokenización:** Separación de cada aminoácido por un espacio para la compatibilidad con ESM-2 (Tokenized_Sequence).
+
+3. **Asignación de temperatura (Estrategia Jerárquica):**
+
+    * **Prioridad 1:** Cruce exacto por especie con TEMPURA (basado en genus_and_species).
+
+    * **Prioridad 2:** Para organismos clasificados como Viridiplantae o Streptophyta sin coincidencia exacta, asignación de un rango térmico conservador (`T_min=5.0`, `T_opt=25.0`, `T_max=35.0`).
+
+    * **Prioridad 3:** Asignación por temperatura media del género cuando la especie no está disponible, utilizando la agrupación por género de TEMPURA.
+
+4. **Eliminación de registros no válidos:** Filtrado de muestras sin una `T_opt` asignada (314 registros descartados para el entrenamiento supervisado).
+
+5. ** Alineamiento (para modelos posicionales):** Alineamiento por pares utilizando la clase `SequenceAligner` de `src/utils/alignment_utils.py`, con matriz `BLOSUM62` y una longitud fija recortada a 1000 posiciones (tal como se implementa en `5_Positional_training.ipynb`) para controlar el uso de memoria y garantizar la uniformidad.
+
+6. **División estratificada:** Partición Train/Test 80/20 con semilla fija (`random_state = 42`) y estratificación manual basada en rangos de temperatura (`0-20`, `20-40`, `40-60`, `60-80`, `80-100` °C) para garantizar la representación de todos los nichos térmicos en el conjunto de evaluación.
+
+### Infraestructura y tiempos de ejecución
+
+Para replicar los resultados con tiempos de ejecución similares, se recomienda la siguiente infraestructura. El tiempo total del pipeline completo es de aproximadamente **45–60 minutos** en hardware estándar de gama media-alta.
+
+* **Extracción de embeddings (ESM-2 `t6_8M`):** Entorno con GPU NVIDIA T4 (en Google Colab) o superior. Tiempo estimado: **~15 minutos** para 2.000 secuencias.
+
+* **Entrenamiento del modelo Ensemble (Random Forest, SVR, GBR):** CPU moderna (8+ núcleos). Tiempo estimado: **~2 minutos**.
+
+* **Entrenamiento del modelo CNN posicional:** GPU NVIDIA T4. Tiempo estimado: **~10 minutos** para 100 épocas.
+
+La ejecución de este protocolo, siguiendo exactamente los pasos y parámetros aquí descritos, debería conducir a un conjunto de datos con las mismas métricas estadísticas (distribución de longitudes, dominios y temperaturas) y un rendimiento de modelos análogo al presentado en este estudio.
+
+## Mejoras Futuras
+
+Si bien el dataset actual y los modelos desarrollados han demostrado ser una prueba de concepto sólida para predecir la temperatura óptima de RuBisCO a partir de su secuencia, existen numerosas vías de mejora que permitirían ampliar el alcance del proyecto, reducir los sesgos identificados y aumentar la precisión de las predicciones.
+
+### Expansión y diversificación del dataset
+
+La principal limitación del conjunto de datos actual es el fuerte sesgo taxonómico y térmico. Para abordarlo, las futuras iteraciones deberían centrarse en:
+
+* **Aumentar la representación bacteriana:** Dado que las bacterias representan solo el 16,8 % del dataset actual, una prioridad será ampliar la búsqueda en UniProt para incluir una mayor diversidad de filos bacterianos, especialmente aquellos que habitan en rangos de temperatura mesófilos y termófilos moderados.
+
+* **Reducir el "missing middle":** La infrarrepresentación de organismos termófilos (45–80 °C) limita la capacidad de generalización en este rango crítico. Se podría explorar el uso de bases de datos complementarias a TEMPURA, como **BacDive** o **NCBI BioSample**, que ofrecen información térmica de crecimiento para un espectro más amplio de microorganismos.
+
+* **Integración de proteínas no canónicas:** Actualmente el dataset se centra en la subunidad grande (rbcL). La inclusión de la subunidad pequeña (rbcS) o de isoformas menos estudiadas de RuBisCO podría enriquecer el espacio de características y revelar nuevos patrones de estabilidad térmica.
+
+### Caracterización estructural y funcional
+
+Una de las vías más prometedoras es la incorporación de información estructural. Aunque el proyecto se ha centrado exclusivamente en la secuencia primaria, el futuro podría traer:
+
+* **Integración con AlphaFold DB:** Añadir embeddings estructurales (por ejemplo, utilizando los modelos de Evoformer) como características adicionales. La estructura tridimensional de una proteína está íntimamente relacionada con su estabilidad térmica, por lo que esta información podría aumentar significativamente la precisión de los modelos.
+
+* **Anotaciones funcionales y de interacción:** Enriquecer el dataset con anotaciones de UniProt relativas a modificaciones post-traduccionales, sitios de unión a cofactores o dominios proteicos adicionales.
+
+### Mejora de los modelos de aprendizaje automático
+
+La arquitectura de los modelos también puede ser objeto de una evolución significativa:
+
+* **Modelos fundacionales más grandes**: Actualmente se utiliza el modelo ESM-2 `t6_8M` (8 millones de parámetros) por su eficiencia computacional. Futuras iteraciones podrían evaluar modelos más profundos y de mayor capacidad, como el `esm2_t36_3B_UR50D` (3.000 millones de parámetros), que capturan representaciones semánticas mucho más ricas de las secuencias proteicas.
+
+* **Aprendizaje multitarea:** En lugar de predecir únicamente la `T_opt`, se podría entrenar el modelo para predecir simultáneamente `T_min`, `T_opt` y `T_max`. Esto no solo aprovecharía toda la información disponible, sino que forzaría al modelo a aprender relaciones más complejas entre la secuencia y el espectro térmico completo del organismo.
+
+* **Modelos basados en atención (Transformers):** El modelo 1D-CNN posicional ya es un gran avance, pero se podría implementar un **Transformer encoder** directamente sobre los embeddings posicionales, permitiendo que el modelo aprenda relaciones de largo alcance entre residuos distantes, un factor clave en la estabilidad de proteínas termófilas.
+
+### Validación experimental (Benchmarking)
+
+La validación final de cualquier modelo predictivo en biología debe ser experimental. A medio plazo, se plantea:
+
+* **Colaboración con laboratorios húmedos:** Seleccionar un conjunto de proteínas de RuBisCO cuyas temperaturas óptimas hayan sido predichas por el modelo con alta confianza (y otras con baja confianza) y validarlas experimentalmente mediante ensayos de actividad enzimática a diferentes temperaturas.
+
+* **Análisis de mutaciones _in silico_:** Utilizar el modelo posicional para identificar qué residuos específicos contribuyen más a la estabilidad térmica y simular mutaciones puntuales para predecir cómo afectarían a la `T_opt`.
+
+Estas mejoras, aunque ambiciosas, son perfectamente alcanzables y permitirían evolucionar el proyecto desde una prueba de concepto hasta una herramienta de predicción robusta y de referencia para la biotecnología de enzimas termoestables.
