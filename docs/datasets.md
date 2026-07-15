@@ -210,6 +210,97 @@ Aunque estas secuencias atípicas no se eliminan automáticamente del conjunto d
 
 ### Estadísticas de temperatura
 
+La temperatura óptima de funcionamiento constituye la variable objetivo de esta primera fase del proyecto. A partir de la información taxonómica obtenida de TEMPURA fue posible asignar un valor experimental de temperatura óptima a **1.686** de las **2.000** secuencias recopiladas, que conforman el conjunto utilizado para el entrenamiento y evaluación de los modelos.
+
+| Estadístico             |   Valor |
+|:------------------------|--------:|
+| Número de observaciones | 1686    |
+| Media                   |   52.93 |
+| Mediana                 |   28.2  |
+| Desviación estándar     |   30.77 |
+| Mínimo                  |   20    |
+| Percentil 25            |   25    |
+| Percentil 75            |   85    |
+| Percentil 95            |  100    |
+| Máximo                  |  105    |
+
+Los valores abarcan un **amplio rango**, desde **20 °C** hasta **105 °C**, reflejando la enorme diversidad de nichos ecológicos en los que habitan los organismos que contienen RuBisCO. La mediana se sitúa en **28,2 °C**, mientras que la media asciende a **52,9 °C**, una diferencia considerable que evidencia que la distribución no es simétrica y está fuertemente influenciada por organismos adaptados a temperaturas elevadas.
+
+![Histograma global de temperatura óptima](assets/figures/datasets/topt_distribution.png)
+
+El histograma confirma que la distribución presenta varios picos claramente diferenciados, en lugar de seguir una distribución aproximadamente normal. Destaca una elevada concentración de organismos con temperaturas óptimas cercanas a 25 °C, correspondiente principalmente a especies mesófilas, junto con un segundo grupo muy numeroso situado entre 80 y 90 °C, característico de arqueas termófilas e hipertermófilas. También aparecen agrupaciones menores alrededor de 60 °C, 70 °C y próximas a 100 °C, reflejando la diversidad de estrategias adaptativas presentes en la naturaleza.
+
+![Boxplot de distribución de temperaturas óptimas](assets/figures/datasets/topt_boxplot.png)
+
+El diagrama de cajas complementa esta información mostrando una gran dispersión de los datos. A diferencia de lo observado en la longitud de las secuencias, no se aprecian valores atípicos especialmente extremos; el amplio rango de temperaturas forma parte de la propia variabilidad biológica del conjunto de datos.
+
+| Thermal_Group | count | 
+|:----------------|--------:| 
+| Hipertermófilos | 959 | 
+| Mesófilos | 916 | 
+| Termófilos | 125 |
+
+Una forma más intuitiva de interpretar la distribución consiste en agrupar las proteínas según la clasificación térmica del organismo del que proceden. El conjunto de datos está dominado por secuencias procedentes de **hipertermófilos (959 proteínas)** y **mesófilos (916 proteínas)**, mientras que los **termófilos (125 proteínas)** representan una fracción considerablemente menor del conjunto.
+
+En este trabajo, los grupos térmicos se han definido a partir de la **temperatura óptima (Topt)** asociada a cada organismo: mesófilos **(<45 °C), termófilos (45–80 °C) e hipertermófilos (≥80 °C)**. Dado que el conjunto de datos no contiene organismos con temperaturas óptimas inferiores a 20 °C, no se identificaron representantes del grupo de los psicrófilos.
+
+Esta distribución explica la naturaleza multimodal observada en las temperaturas óptimas y pone de manifiesto un cierto desequilibrio entre grupos térmicos. En particular, los organismos adaptados a temperaturas extremadamente elevadas y a temperaturas moderadas están ampliamente representados, mientras que las proteínas procedentes de organismos termófilos constituyen una minoría. Este aspecto deberá tenerse en cuenta durante el entrenamiento y la evaluación de los modelos, ya que puede influir en su capacidad para generalizar correctamente sobre regiones menos representadas del espacio de temperaturas.
+
+Este desbalanceo implica que el modelo podría aprender muy bien a predecir temperaturas cercanas a 25 °C y 85 °C, pero probablemente **tendrá dificultades para generalizar en el rango intermedio (45–80 °C)**. Cualquier predicción en este rango deberá ser evaluada con especial cautela, y se recomienda considerar técnicas de remuestreo, ponderación de clases o validación cruzada estratificada durante el entrenamiento.
+
+![Distribución de la temperatura óptima por dominio](assets/figures/datasets/topt_violin_by_domain.png)
+
+Finalmente, al separar las observaciones por dominio taxonómico se aprecia que la distribución de temperaturas está estrechamente relacionada con la filogenia de los organismos. Las arqueas concentran la mayor parte de las temperaturas elevadas, mientras que las secuencias eucariotas se agrupan casi exclusivamente alrededor de 25 °C. Las bacterias presentan una distribución mucho más amplia, ocupando un rango intermedio que incluye desde organismos psicrófilos hasta termófilos moderados.
+
+Esta fuerte relación entre taxonomía y temperatura confirma la importancia de conservar la información filogenética durante el preprocesamiento, ya que constituye una fuente de información biológicamente relevante para interpretar las propiedades funcionales de las proteínas y puede aportar contexto adicional durante el entrenamiento de futuros modelos.
+
+### Distribución taxonómica
+
+La composición taxonómica del conjunto de datos es un factor determinante para comprender el alcance y las limitaciones de los modelos entrenados. El análisis de los dominios taxonómicos y los géneros más frecuentes revela una estructura de muestreo claramente sesgada hacia organismos con estrategias adaptativas extremas.
+
+![Distribución por dominio](assets/figures/datasets/taxonomic_domain_distribution.png)
+
+El desglose por dominio taxonómico muestra que las secuencias de **Eukaryota (892 proteínas, 44.6 %)** y **Archaea (771 proteínas, 38.5 %)** son los grupos mayoritarios y están representados de forma casi equitativa. A pesar de la inmensa diversidad y relevancia ecológica de **Bacteria**, este dominio contribuye con **336 proteínas (16.8 %)** y, junto con un único registro clasificado como Other, completa el total de 2.000 secuencias.
+
+Esta distribución es especialmente relevante cuando se contrasta con la información térmica presentada anteriormente. La gran cantidad de secuencias de Eukaryota (principalmente plantas y algas) explica el pico de temperaturas óptimas en torno a los 25 °C, mientras que la abundante presencia de Archaea es la responsable directa del segundo pico alrededor de los 85 °C. El dominio Bacteria, aunque menos numeroso, actúa como un puente térmico que aporta la variabilidad en el rango intermedio (termófilo), aunque en menor proporción.
+
+![Top 10 géneros](assets/figures/datasets/top_10_genera.png)
+
+El análisis de los **10 géneros más frecuentes** confirma aún más este patrón. El conjunto de datos está dominado casi por completo por géneros de **arqueas hipertermófilas y termófilas**, como *Pyrococcus* (~190 secuencias), *Methanocaldococcus* (~155), *Saccharolobus* (~135) o *Thermococcus* (~110), entre otros. Esta sobrerrepresentación de arqueas extremófilas es una consecuencia directa del cruce con la base de datos TEMPURA, la cual posee una cobertura históricamente alta para microorganismos de ambientes geotérmicos.
+
+*Lupinus* y *Nostoc* son los únicos representantes eucariotas y bacterianos que logran aparecer en el top 10, probablemente debido a una alta frecuencia de anotaciones en UniProt o a esfuerzos de secuenciación específicos. La presencia de *Nostoc* también añade una interesante diversidad evolutiva, ya que se trata de **cianobacterias** capaces de realizar fijación de nitrógeno y fotosíntesis.
+
+Esta distribución taxonómica tiene consecuencias directas en el rendimiento de los modelos de aprendizaje automático. El fuerte sesgo hacia los extremos térmicos (mesófilos e hipertermófilos) y la infrarrepresentación de los termófilos intermedios (que apenas representan 125 secuencias) sugiere que los modelos podrían tener una **menor capacidad de generalización en el rango de 45–80 °C**. Si bien el conjunto de datos es amplio y diverso para los rangos bajo y alto, cualquier predicción para organismos termófilos moderados debe ser interpretada con cautela.
+
+### Análisis de valores ausentes
+
+Uno de los aspectos críticos para el entrenamiento de modelos supervisados es la disponibilidad de la variable objetivo. Tras el proceso de cruce con TEMPURA, **314 de las 2.000 secuencias (15,7 %)** no pudieron ser etiquetadas con una temperatura óptima. El análisis de estos registros revela que la gran mayoría corresponden a **organismos eucariotas** (principalmente plantas y algas) y a **bacterias** no termófilas. 
+
+Esta falta de cobertura es una limitación inherente a la naturaleza de TEMPURA, una base de datos especializada en procariotas de ambientes extremos. Por lo tanto, el conjunto de datos final utilizado para el entrenamiento (1.686 muestras) está ligeramente sobrerrepresentado por organismos procariotas, lo cual debe tenerse en cuenta al interpretar los resultados.
+
+### Relación entre longitud de secuencia y temperatura
+
+Un análisis exploratorio adicional consiste en estudiar si existe alguna relación entre la longitud de las proteínas RuBisCO y la temperatura óptima del organismo que las expresa.
+
+![Scatter plot de Longitud vs Temperatura Óptima](assets/figures/datasets/length_vs_topt_scatter.png)
+
+El gráfico de dispersión revela varios patrones interesantes. En primer lugar, se observa una **elevada densidad de puntos en el rango de 400 a 500 aminoácidos**, que se mantiene constante a lo largo de todo el espectro de temperaturas. Esto indica que la longitud canónica de la proteína RuBisCO se conserva independientemente del nicho térmico del organismo. Las "columnas" verticales que se aprecian en el eje de temperaturas son un artefacto de los valores discretos de temperatura registrados en la base de datos TEMPURA.
+
+Lo más destacado del gráfico es la **asimetría en la dispersión hacia longitudes mayores**. Mientras que los organismos mesófilos (representados en azul, T_opt < 45 °C) apenas presentan secuencias que superen los 500 aminoácidos, los organismos hipertermófilos (en rojo, T_opt ≥ 80 °C) muestran una **larga cola de valores atípicos**, con múltiples secuencias que superan los 1.000 e incluso los 1.800 aminoácidos. Esto sugiere que las proteínas de fusión o las variantes estructurales extendidas son un fenómeno casi exclusivo de arqueas adaptadas a ambientes extremos.
+
+### Distribución de la longitud por dominio taxonómico
+
+Al desglosar la longitud de las secuencias por dominio, se aprecian diferencias significativas en la estructura de los datos.
+
+![Boxplot de Longitud por Dominio](assets/figures/datasets/length_by_domain.png)
+
+El boxplot (con el eje Y limitado a 1.500 aa para apreciar la caja central) muestra diferencias notables:
+
+*   **Eukaryota:** Presenta la distribución más homogénea. La caja es extremadamente estrecha, con una mediana muy próxima a los **450 aminoácidos**. Apenas unos pocos valores atípicos superan los 600 aa. Esto refleja la alta estabilidad evolutiva de la RuBisCO en el cloroplasto de plantas y algas.
+*   **Bacteria:** Su comportamiento es similar al de los eucariotas, con una caja muy ajustada y una mediana en torno a los **470 aminoácidos**. Presenta algunos valores atípicos a la baja, posiblemente debidos a fragmentos de secuencia o anotaciones incompletas.
+*   **Archaea:** Este dominio es el principal responsable de la variabilidad observada en el conjunto de datos. Su mediana es sensiblemente inferior, situándose alrededor de los **380 aminoácidos**, pero su rango intercuartílico (el tamaño de la caja) es mucho más amplio. Sobre todo, destaca por la **enorme cantidad de outliers superiores**, que se extienden hasta más allá de los 1.400 aminoácidos (y que en el conjunto global alcanzan los 5.902 aa). Esta variabilidad extrema es consistente con la presencia de proteínas de fusión y dominios adicionales en arqueas termófilas e hipertermófilas.
+
+En conjunto, el scatter plot del apartado anterior y el boxplot confirman que, aunque la mayoría de las secuencias siguen el patrón canónico de ~450 aminoácidos, el **sesgo hacia arqueas hipertermófilas** es el que introduce la mayor parte de la variabilidad y los valores atípicos en la distribución de longitudes.
 
 
 ## Train / Validation / Test split
