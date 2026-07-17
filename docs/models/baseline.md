@@ -1,72 +1,149 @@
-# Baseline (Modelos Clásicos de ML)
+# Baseline (Classical ML Models)
 
-## 📖 Descripción general del enfoque
+Use the tabs below to switch between English and Spanish.
 
-El modelo Baseline establece el punto de referencia de rendimiento para el proyecto. Utiliza **embeddings de secuencia promediados** (extraídos con ESM-2) como características de entrada para entrenar algoritmos de Machine Learning clásicos. Esto permite evaluar rápidamente si la representación de ESM-2 contiene información suficiente sobre la estabilidad térmica, antes de abordar arquitecturas más complejas (como la CNN posicional).
+=== "English"
 
-## ⚙️ Preparación de los datos para el modelo
+    ## 📖 General approach description
 
-* **Tipo de representación:** Embeddings de secuencia promediados (vectores de 768 dimensiones por proteína).
+    The Baseline model establishes the project performance reference point. It uses **pooled sequence embeddings** (extracted with ESM-2) as input features to train classical Machine Learning algorithms. This provides a fast way to evaluate whether ESM-2 representations contain enough information about thermal stability before moving to more complex architectures (such as the positional CNN).
 
-* **Preprocesamiento específico:** 
+    ## ⚙️ Data preparation for the model
 
-  * Normalización de características mediante `StandardScaler` (especialmente para el modelo SVR).
+    * **Representation type:** Pooled sequence embeddings (768-dimensional vectors per protein).
 
-  * Filtrado de secuencias que no cumplen con los criterios de calidad (longitud < 350 aa, salvo que sean arqueas).
+    * **Specific preprocessing:**
 
-* **División de datos:** Estratificada 80/20 basada en 5 rangos de temperatura, con semilla aleatoria fija (`random_state=42`).
+      * Feature normalization using `StandardScaler` (especially for the SVR model).
 
-## 🧠 Arquitectura y configuración del modelo
+      * Filtering sequences that do not meet quality criteria (length < 350 aa, except archaea).
 
-Se entrenaron cuatro modelos diferentes y un ensemble:
+    * **Data split:** Stratified 80/20 split based on 5 temperature ranges, with fixed random seed (`random_state=42`).
 
-- **Random Forest (RF):** Optimizado mediante `GridSearchCV` (CV=5) para buscar los mejores parámetros de profundidad y número de estimadores.
+    ## 🧠 Model architecture and setup
 
-- **Gradient Boosting (GB):** `n_estimators=200`, `learning_rate=0.1`, `max_depth=5`.
+    Four different models and one ensemble were trained:
 
-- **Support Vector Regressor (SVR):** Kernel `rbf`, `C=10`, `gamma='scale'`.
+    - **Random Forest (RF):** Optimized with `GridSearchCV` (CV=5) to find the best depth and estimator settings.
 
-- **Ensemble:** Un `VotingRegressor` que combina las predicciones de los tres modelos anteriores para mejorar la robustez.
+    - **Gradient Boosting (GB):** `n_estimators=200`, `learning_rate=0.1`, `max_depth=5`.
 
-## 📊 Evaluación de resultados
+    - **Support Vector Regressor (SVR):** `rbf` kernel, `C=10`, `gamma='scale'`.
 
-Las métricas de rendimiento se calcularon sobre el conjunto de test (20 % de los datos), tras haber entrenado los modelos con el 80 % restante.
+    - **Ensemble:** A `VotingRegressor` combining predictions from the three previous models to improve robustness.
 
-| Modelo | RMSE (°C) | R² | MAE (°C) |
-|:---|:---:|:---:|:---:|
-| Random Forest | `6.77` | `0.953` | `8.82` |
-| Gradient Boosting | `6.05` | `0.963` | `3.54` |
-| SVR | `28.01` | `0.196` | `27.01` |
-| **Ensemble (Voting)** | `6.80` | `0.953` | `4.16` |
+    ## 📊 Results evaluation
 
-Además, el modelo Ensemble fue sometido a una **validación cruzada de 5 folds** sobre el conjunto de entrenamiento, obteniendo un rendimiento medio de:
+    Performance metrics were computed on the test set (20% of the data), after training with the remaining 80%.
 
-- **RMSE (CV):** `8.10` ± `3.65` °C
+    | Model | RMSE (°C) | R² | MAE (°C) |
+    |:---|:---:|:---:|:---:|
+    | Random Forest | `6.77` | `0.953` | `8.82` |
+    | Gradient Boosting | `6.05` | `0.963` | `3.54` |
+    | SVR | `28.01` | `0.196` | `27.01` |
+    | **Ensemble (Voting)** | `6.80` | `0.953` | `4.16` |
 
-- **R² (CV):** `-2.351` ± `2.955`
+    In addition, the Ensemble model underwent **5-fold cross-validation** on the training set, yielding an average performance of:
 
-![Comparación de resultados de los modelos del ensemble](../assets/figures/models/model_comparison_baseline.png)
+    - **RMSE (CV):** `8.10` ± `3.65` °C
 
-## 🎯 Justificación del enfoque:
+    - **R² (CV):** `-2.351` ± `2.955`
 
-El primer paso en cualquier proyecto de modelado predictivo es establecer un punto de referencia (baseline). Se eligieron modelos de Machine Learning clásicos (Random Forest, Gradient Boosting, SVR) porque:
+    ![Baseline model comparison](../assets/figures/models/model_comparison_baseline.png)
 
-1. **Rapidez e interpretabilidad:** Permiten obtener métricas de rendimiento en cuestión de minutos y ofrecen una medida del nivel de dificultad intrínseco del problema. Si un Random Forest no logra un R² > 0.8, es muy probable que una CNN compleja tampoco lo haga, ahorrando así tiempo computacional.
+    ## 🎯 Rationale for this approach
 
-2. **Evaluación de la representación:** Al usar **embeddings promediados (mean pooling)**, este enfoque responde a la pregunta: "¿Contiene el promedio de la secuencia suficiente información para predecir la termoestabilidad?". Si este modelo funciona bien, significa que ESM-2 ya ha capturado las propiedades fisicoquímicas globales de la proteína. Si falla, justifica la necesidad de un modelo más sofisticado como la CNN.
+    The first step in any predictive modeling project is to establish a baseline. Classical ML models (Random Forest, Gradient Boosting, SVR) were selected because:
 
-## 🔍 Análisis y limitaciones específicas
+    1. **Speed and interpretability:** They provide performance metrics within minutes and give a measure of intrinsic problem difficulty. If a Random Forest cannot achieve R² > 0.8, a more complex CNN is unlikely to do so either, saving computational time.
 
-* **Fortalezas:** El modelo demostró que los embeddings de ESM-2, incluso promediados, capturan información relevante sobre la estabilidad térmica. El Ensemble resultó ser muy robusto, con un R² consistente tanto en test como en validación cruzada, lo que indica que no hay sobreajuste significativo.
+    2. **Representation evaluation:** By using **pooled embeddings (mean pooling)**, this approach answers the question: "Does the sequence average contain enough information to predict thermal stability?" If this model performs well, ESM-2 has already captured global physicochemical protein properties. If it fails, it supports moving to more sophisticated models such as CNNs.
 
-* **Debilidades:** El error en el rango termófilo (45-80 °C) fue notablemente superior al de los rangos bajo y alto. Esto confirma el sesgo de "missing middle" descrito en el análisis de datasets, y sugiere que un modelo puramente basado en promedios de secuencia no puede capturar las sutiles variaciones posicionales que determinan la estabilidad en ese rango intermedio.
+    ## 🔍 Analysis and specific limitations
 
-## 💻 Código asociado
+    * **Strengths:** The model showed that ESM-2 embeddings, even when pooled, capture relevant thermal-stability information. The Ensemble was robust, with consistent R² in both test and cross-validation, suggesting no significant overfitting.
 
-- Notebook principal: `3_Train_model_v2.ipynb`
+    * **Weaknesses:** Error in the thermophilic range (45-80 °C) was notably higher than in lower and higher ranges. This confirms the "missing middle" bias described in dataset analysis and suggests that a purely pooled-sequence model cannot capture subtle positional variations driving stability in that intermediate range.
 
-- Scripts de soporte: 
+    ## 💻 Associated code
 
-  - `src/models/train_predict.py` (Contiene las funciones `train_random_forest_optimized`, `train_ensemble`, `stratified_split_simple`, etc.).
+    - Main notebook: `3_Train_model_v2.ipynb`
 
-  - `src/models/esm_extractor.py` (Extrae los embeddings promediados que alimentan el modelo).
+    - Support scripts:
+
+      - `src/models/train_predict.py` (Contains functions such as `train_random_forest_optimized`, `train_ensemble`, `stratified_split_simple`, etc.).
+
+      - `src/models/esm_extractor.py` (Extracts pooled embeddings used by the model).
+
+=== "Español"
+
+    ## 📖 Descripción general del enfoque
+
+    El modelo Baseline establece el punto de referencia de rendimiento para el proyecto. Utiliza **embeddings de secuencia promediados** (extraídos con ESM-2) como características de entrada para entrenar algoritmos de Machine Learning clásicos. Esto permite evaluar rápidamente si la representación de ESM-2 contiene información suficiente sobre la estabilidad térmica, antes de abordar arquitecturas más complejas (como la CNN posicional).
+
+    ## ⚙️ Preparación de los datos para el modelo
+
+    * **Tipo de representación:** Embeddings de secuencia promediados (vectores de 768 dimensiones por proteína).
+
+    * **Preprocesamiento específico:**
+
+      * Normalización de características mediante `StandardScaler` (especialmente para el modelo SVR).
+
+      * Filtrado de secuencias que no cumplen con los criterios de calidad (longitud < 350 aa, salvo que sean arqueas).
+
+    * **División de datos:** Estratificada 80/20 basada en 5 rangos de temperatura, con semilla aleatoria fija (`random_state=42`).
+
+    ## 🧠 Arquitectura y configuración del modelo
+
+    Se entrenaron cuatro modelos diferentes y un ensemble:
+
+    - **Random Forest (RF):** Optimizado mediante `GridSearchCV` (CV=5) para buscar los mejores parámetros de profundidad y número de estimadores.
+
+    - **Gradient Boosting (GB):** `n_estimators=200`, `learning_rate=0.1`, `max_depth=5`.
+
+    - **Support Vector Regressor (SVR):** Kernel `rbf`, `C=10`, `gamma='scale'`.
+
+    - **Ensemble:** Un `VotingRegressor` que combina las predicciones de los tres modelos anteriores para mejorar la robustez.
+
+    ## 📊 Evaluación de resultados
+
+    Las métricas de rendimiento se calcularon sobre el conjunto de test (20% de los datos), tras haber entrenado los modelos con el 80% restante.
+
+    | Modelo | RMSE (°C) | R² | MAE (°C) |
+    |:---|:---:|:---:|:---:|
+    | Random Forest | `6.77` | `0.953` | `8.82` |
+    | Gradient Boosting | `6.05` | `0.963` | `3.54` |
+    | SVR | `28.01` | `0.196` | `27.01` |
+    | **Ensemble (Voting)** | `6.80` | `0.953` | `4.16` |
+
+    Además, el modelo Ensemble fue sometido a una **validación cruzada de 5 folds** sobre el conjunto de entrenamiento, obteniendo un rendimiento medio de:
+
+    - **RMSE (CV):** `8.10` ± `3.65` °C
+
+    - **R² (CV):** `-2.351` ± `2.955`
+
+    ![Comparación de resultados de los modelos del ensemble](../assets/figures/models/model_comparison_baseline.png)
+
+    ## 🎯 Justificación del enfoque
+
+    El primer paso en cualquier proyecto de modelado predictivo es establecer un punto de referencia (baseline). Se eligieron modelos de Machine Learning clásicos (Random Forest, Gradient Boosting, SVR) porque:
+
+    1. **Rapidez e interpretabilidad:** Permiten obtener métricas de rendimiento en cuestión de minutos y ofrecen una medida del nivel de dificultad intrínseco del problema. Si un Random Forest no logra un R² > 0.8, es muy probable que una CNN compleja tampoco lo haga, ahorrando así tiempo computacional.
+
+    2. **Evaluación de la representación:** Al usar **embeddings promediados (mean pooling)**, este enfoque responde a la pregunta: "¿Contiene el promedio de la secuencia suficiente información para predecir la termoestabilidad?". Si este modelo funciona bien, significa que ESM-2 ya ha capturado las propiedades fisicoquímicas globales de la proteína. Si falla, justifica la necesidad de un modelo más sofisticado como la CNN.
+
+    ## 🔍 Análisis y limitaciones específicas
+
+    * **Fortalezas:** El modelo demostró que los embeddings de ESM-2, incluso promediados, capturan información relevante sobre la estabilidad térmica. El Ensemble resultó ser muy robusto, con un R² consistente tanto en test como en validación cruzada, lo que indica que no hay sobreajuste significativo.
+
+    * **Debilidades:** El error en el rango termófilo (45-80 °C) fue notablemente superior al de los rangos bajo y alto. Esto confirma el sesgo de "missing middle" descrito en el análisis de datasets, y sugiere que un modelo puramente basado en promedios de secuencia no puede capturar las sutiles variaciones posicionales que determinan la estabilidad en ese rango intermedio.
+
+    ## 💻 Código asociado
+
+    - Notebook principal: `3_Train_model_v2.ipynb`
+
+    - Scripts de soporte:
+
+      - `src/models/train_predict.py` (Contiene las funciones `train_random_forest_optimized`, `train_ensemble`, `stratified_split_simple`, etc.).
+
+      - `src/models/esm_extractor.py` (Extrae los embeddings promediados que alimentan el modelo).
