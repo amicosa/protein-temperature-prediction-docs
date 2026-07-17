@@ -77,7 +77,6 @@ extra_javascript:
 
 nav:
   - Home: index.md
-  - Project Overview: project-overview.md
   - Motivation: motivation.md
   - Methodology: methodology.md
   - Datasets: datasets.md
