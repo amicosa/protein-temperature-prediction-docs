@@ -88,8 +88,9 @@ nav:
       - Future Models: models/future-models.md
 
   - Experiments:
-      - Experiment 001: experiments/experiment-001.md
-      - Experiment 002: experiments/experiment-002.md
+      - Index: experiments/index.md
+      - Phase 1: experiments/phase-001.md
+      - Phase 2: experiments/phase-002.md
 
   - Results:
       - Metrics: results/metrics.md
