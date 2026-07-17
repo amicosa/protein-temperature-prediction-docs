@@ -10,8 +10,8 @@ Use the tabs below to switch between English and Spanish.
 
     To avoid redundancy and ensure a clear narrative, the experiments have been structured as a **two-phase workflow**:
 
-    - **[Phase 1: Feasibility Study](experiment_001/)**. *Goal: Determine if ESM-2 embeddings contain enough information to predict T_opt at all using classical Machine Learning.*
-    - **[Phase 2: Hypothesis Testing](experiment_002/)**. *Goal: Determine if preserving positional context via multiple sequence alignment improves predictive performance using a 1D-CNN.*
+    - **[Phase 1: Feasibility Study](phase-001/)**. *Goal: Determine if ESM-2 embeddings contain enough information to predict T_opt at all using classical Machine Learning.*
+    - **[Phase 2: Hypothesis Testing](phase-002/)**. *Goal: Determine if preserving positional context via multiple sequence alignment improves predictive performance using a 1D-CNN.*
 
     This separation ensures that **each phase generates a unique scientific insight**, justifying the transition to the next, without repeating technical details or final numbers which are covered in the `Models` section.
 
@@ -29,8 +29,8 @@ Use the tabs below to switch between English and Spanish.
 
     Para evitar redundancias y garantizar una narrativa clara, los experimentos se han estructurado como un **flujo de trabajo en dos fases**:
 
-    - **[Fase 1: Estudio de viabilidad](experiment_001/)**. *Objetivo: Determinar si los embeddings de ESM-2 contienen suficiente información para predecir la T_opt utilizando ML Clásico.*
-    - **[Fase 2: Testeo de hipótesis](experiment_002/)**. *Objetivo: Determinar si preservar el contexto posicional mediante alineamiento múltiple mejora el rendimiento predictivo usando una 1D-CNN.*
+    - **[Fase 1: Estudio de viabilidad](phase-001/)**. *Objetivo: Determinar si los embeddings de ESM-2 contienen suficiente información para predecir la T_opt utilizando ML Clásico.*
+    - **[Fase 2: Testeo de hipótesis](phase-002/)**. *Objetivo: Determinar si preservar el contexto posicional mediante alineamiento múltiple mejora el rendimiento predictivo usando una 1D-CNN.*
 
     Esta separación garantiza que **cada fase genere una conclusión científica única**, justificando la transición a la siguiente sin repetir detalles técnicos o cifras finales, las cuales se cubren en la sección `Models`.
 
