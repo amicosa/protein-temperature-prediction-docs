@@ -11,6 +11,7 @@ Use the tabs below to switch between English and Spanish.
     To convert amino acid sequences into numerical vectors suitable for machine learning, we selected **ESM-2 (Evolutionary Scale Modeling 2)** developed by Meta AI.
 
     **Why ESM-2 over other models?**
+
     1. **State-of-the-art performance:** ESM-2 is one of the most powerful protein language models (pLMs) available, achieving top results in downstream tasks such as structure prediction and property prediction.
 
     2. **Evolutionary and structural encoding:** Trained on over 250 million protein sequences, ESM-2 captures deep evolutionary relationships and implicitly learns contact maps and secondary structure motifs, which are critical for predicting thermostability.
@@ -84,6 +85,7 @@ Use the tabs below to switch between English and Spanish.
     Para convertir las secuencias de aminoácidos en vectores numéricos adecuados para el aprendizaje automático, se seleccionó **ESM-2 (Evolutionary Scale Modeling 2)**, desarrollado por Meta AI.
 
     **¿Por qué ESM-2 y no otros modelos?**
+    
     1. **Rendimiento de vanguardia:** ESM-2 es uno de los modelos de lenguaje de proteínas (pLMs) más potentes disponibles, logrando resultados líderes en tareas de predicción de estructura y propiedades.
 
     2. **Codificación evolutiva y estructural:** Entrenado con más de 250 millones de secuencias proteicas, ESM-2 captura relaciones evolutivas profundas y aprende implícitamente mapas de contacto y motivos de estructura secundaria, fundamentales para predecir la termoestabilidad.
@@ -149,5 +151,5 @@ Use the tabs below to switch between English and Spanish.
     - **Embeddings de AlphaFold (Con información de estructura):** En lugar de usar ESM-2, se podrían utilizar embeddings derivados de las predicciones estructurales de AlphaFold. Dado que la termoestabilidad es fundamentalmente una propiedad estructural, estos embeddings conscientes de la estructura 3D podrían aumentar la precisión en el problemático rango del "missing middle".
 
     - **Representaciones híbridas (SaProt):** SaProt utiliza un vocabulario que combina aminoácidos con su contexto estructural (estructura secundaria), ofreciendo un punto intermedio entre los métodos basados solo en secuencia y los basados en estructura.
-    
+
     - **Características fisicoquímicas clásicas:** A modo de comparación, también se podrían probar características tradicionales como la composición de aminoácidos, escalas de hidrofobicidad y perfiles de carga para evaluar cómo los embeddings de deep learning superan a la ingeniería de características simple.
