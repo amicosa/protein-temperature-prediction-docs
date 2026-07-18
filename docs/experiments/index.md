@@ -1,7 +1,5 @@
 # Experiments
 
-This section details the iterative experimental design and the scientific journey followed during the development of the predictive models. 
-
 Use the tabs below to switch between English and Spanish.
 
 === "English"
