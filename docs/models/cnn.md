@@ -62,15 +62,19 @@ Use the tabs below to switch between English and Spanish.
 
     ## 📊 Results evaluation
 
-    *(These values are completed after running notebook `5_Positional_training.ipynb`)*
+    ### **Validation set metrics (Best epoch `40`):**
 
-    * **Main metrics (Validation set - Best epoch `40`):**
+    * **RMSE (Validation):** `7.54 °C`
+    * **R² (Validation):** `0.939`
+    * **Loss:** `56.89`
 
-      * **RMSE (Validation):** `7.54 °C`
+    ### **Test set metrics (evaluated on the same stratified test set as the Baseline):**
 
-      * **R² (Validation):** `0.939`
+    * **RMSE (Test):** `7.36 °C`
+    * **R² (Test):** `0.942`
+    * **MAE (Test):** `4.54 °C`
 
-      * **Loss:** `56.89`
+    ---
 
     ### **Relevant plots:**
 
@@ -176,19 +180,23 @@ Use the tabs below to switch between English and Spanish.
 
     ## 📊 Evaluación de resultados
 
-    *(Estos valores se rellenarán tras la ejecución del notebook `5_Positional_training.ipynb`)*
+    ### **Métricas del conjunto de validación (Mejor época `40`):**
 
-    * **Métricas principales (Validation set - Mejor época `40`):**
+    * **RMSE (Validación):** `7.54 °C`
+    * **R² (Validación):** `0.939`
+    * **Pérdida (Loss):** `56.89`
 
-      * **RMSE (Validación):** `7.54 °C`
+    ### **Métricas del conjunto de test (evaluado sobre el mismo conjunto de test estratificado que el Baseline):**
 
-      * **R² (Validación):** `0.939`
+    * **RMSE (Test):** `7.36 °C`
+    * **R² (Test):** `0.942`
+    * **MAE (Test):** `4.54 °C`
 
-      * **Pérdida (Loss):** `56.89`
+    ---
 
     ### **Gráficos relevantes:**
 
-    #### **Curva de pérdida (Loss curve):**
+    #### **Curva de pérdida:**
 
     ![Curva de pérdida del CNN](../assets/figures/models/loss_curve.png)
 
