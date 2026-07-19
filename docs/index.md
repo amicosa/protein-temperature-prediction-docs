@@ -104,14 +104,6 @@ Use the tabs below to switch between English and Spanish.
         G --> H
     ```
 
-    ---
-
-    ## 📚 Key references
-
-    - **ESM-2**: [Lin et al., 2023. "Evolutionary-scale prediction of atomic-level protein structure with a language model". Science.](https://www.science.org/doi/10.1126/science.ade2574)
-    - **TEMPURA**: [Pinney et al., 2021. "TEMPURA: a database of growth temperatures for prokaryotes".](https://www.jstage.jst.go.jp/article/jsme2/35/3/35_ME20074/_article/-char/en)
-    - **RuBisCO**: [Erb TJ, Zarzycki J., 2017. "A short history of RubisCO: the rise and fall (?) of Nature's predominant CO2 fixing enzyme".](https://pmc.ncbi.nlm.nih.gov/articles/PMC7610757/)
-
 
 === "Español"
 
@@ -214,12 +206,3 @@ Use the tabs below to switch between English and Spanish.
         F --> H["Evaluación y\nComparación"]
         G --> H
     ```
-
-    ---
-
-    ## 📚 Referencias clave
-
-    - **ESM-2**: [Lin et al., 2023. "Evolutionary-scale prediction of atomic-level protein structure with a language model". Science.](https://www.science.org/doi/10.1126/science.ade2574)
-    - **TEMPURA**: [Pinney et al., 2021. "TEMPURA: a database of growth temperatures for prokaryotes".](https://www.jstage.jst.go.jp/article/jsme2/35/3/35_ME20074/_article/-char/en)
-    - **RuBisCO**: [Erb TJ, Zarzycki J., 2017. "A short history of RubisCO: the rise and fall (?) of Nature's predominant CO2 fixing enzyme".](https://pmc.ncbi.nlm.nih.gov/articles/PMC7610757/)
-
