@@ -37,6 +37,27 @@ Use the tabs below to switch between English and Spanish.
 
     ---
 
+    ## 📌 Model Interpretability: Grad-CAM Analysis
+
+    To understand what the Positional CNN is learning, we applied **Grad-CAM (Gradient-weighted Class Activation Mapping)** to identify which positions in the alignment are most important for the model's predictions.
+
+    The figure below shows the mean Grad-CAM profiles for three balanced groups of sequences (66 sequences per group: Mesophiles, Thermophiles, Hyperthermophiles), along with the globally balanced aggregate.
+
+    ![Grad-CAM analysis](../assets/figures/metrics/grad_cam_cnn.png)
+
+    **Interpretation of the results:**
+
+    - **Top Panel (Mean Grad-CAM by temperature group):**
+        - **Mesophiles (< 45 °C) - Blue line:** The model shows a **striking and exclusive focus on the very end of the alignment** (position ~1000). This suggests the C-terminal region is highly informative for identifying mesophilic RuBisCO, or potentially reflects an artifact of the sequence padding (zeros) used to reach the fixed 1000-length alignment.
+        - **Thermophiles (45–80 °C) - Orange line & Hyperthermophiles (> 80 °C) - Red line:** The model distributes its attention more broadly across the early and middle regions of the sequence, with a clear peak near the N-terminus (position 0). This indicates that the model uses different structural motifs to predict thermal stability in thermophilic and hyperthermophilic organisms.
+
+    - **Bottom Panel (Global balanced aggregate):**
+        - The global average (black line) shows a relatively flat distribution of attention across the sequence, with a slight peak at the beginning and a prominent spike at the end. The gray shaded area represents the variability (±1 standard deviation), indicating that while the general attention is spread out, the model's focus varies significantly between individual sequences.
+
+    The difference in attention patterns between the mesophilic and hyperthermophilic groups confirms that **the CNN is not just learning a generic "temperature rule", but is actively searching for distinct local motifs that correlate with specific thermal niches**. This opens up exciting possibilities for using the model to identify novel residue patterns associated with thermostability.
+
+    ---
+
     ## ✅ Validation Robustness
 
     It is important to note that the metrics shown here are the result of a rigorous, reproducible validation protocol:
@@ -80,6 +101,27 @@ Use the tabs below to switch between English and Spanish.
     - Comparar cómo difieren los mapas de atención entre variantes mesófilas e hipertermófilas de RuBisCO.
 
     *Esta visión posicional se explorará en detalle en las siguientes secciones de `Error Analysis` y `Visualizations`.*
+
+    ---
+
+    ## 📌 Interpretabilidad del modelo: Análisis Grad-CAM
+
+    Para entender qué está aprendiendo la CNN Posicional, aplicamos **Grad-CAM (Gradient-weighted Class Activation Mapping)** para identificar qué posiciones del alineamiento son más importantes para las predicciones del modelo.
+
+    La siguiente figura muestra los perfiles de Grad-CAM medios para tres grupos balanceados de secuencias (66 secuencias por grupo: Mesófilos, Termófilos, Hipertermófilos), junto con el agregado global balanceado.
+
+    ![Análisis Grad-CAM](../assets/figures/metrics/grad_cam_cnn.png)
+
+    **Interpretación de los resultados:**
+
+    - **Panel Superior (Grad-CAM medio por grupo de temperatura):**
+        - **Mesófilos (< 45 °C) - Línea azul:** El modelo muestra un **enfoque llamativo y exclusivo en el extremo final del alineamiento** (posición ~1000). Esto sugiere que la región C-terminal es altamente informativa para identificar RuBisCO mesófila, o potencialmente refleja un artefacto del padding de la secuencia (ceros) utilizado para alcanzar la longitud fija de 1000 posiciones.
+        - **Termófilos (45–80 °C) - Línea naranja e Hipertermófilos (> 80 °C) - Línea roja:** El modelo distribuye su atención de forma más amplia en las regiones tempranas y medias de la secuencia, con un claro pico cerca del extremo N-terminal (posición 0). Esto indica que el modelo utiliza diferentes motivos estructurales para predecir la estabilidad térmica en organismos termófilos e hipertermófilos.
+
+    - **Panel Inferior (Agregado global balanceado):**
+        - El promedio global (línea negra) muestra una distribución de atención relativamente plana a lo largo de la secuencia, con un ligero pico al principio y un pico prominente al final. El área sombreada en gris representa la variabilidad (±1 desviación estándar), lo que indica que, aunque la atención general está repartida, el enfoque del modelo varía significativamente entre secuencias individuales.
+
+    La diferencia en los patrones de atención entre los grupos mesófilo e hipertermófilo confirma que **la CNN no solo está aprendiendo una "regla de temperatura" genérica, sino que está buscando activamente motivos locales distintos que correlacionan con nichos térmicos específicos**. Esto abre emocionantes posibilidades para utilizar el modelo con el fin de identificar nuevos patrones de residuos asociados con la termoestabilidad.
 
     ---
 
