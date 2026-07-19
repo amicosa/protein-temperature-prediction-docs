@@ -13,6 +13,7 @@ Use the tabs below to switch between English and Spanish.
     ## [v1.0.0] - 2026-07-19
 
     ### 🎉 Added
+
     - **Project Foundation:** Initial repository setup, documentation structure (Overview, Motivation, Methodology, Datasets, Models, Experiments, Results, Roadmap).
 
     - **Data Pipeline:** Implementation of `src/utils/download_data.py` for UniProt API queries (RuBisCO + archaea focus) and `src/utils/data_enricher.py` for TEMPURA cross-referencing and hierarchical fallback rules (Plant heuristics, Genus-level averaging).
@@ -48,6 +49,7 @@ Use the tabs below to switch between English and Spanish.
     ## [v1.0.0] - 2026-07-19
 
     ### 🎉 Added (Añadido)
+    
     - **Fundación del proyecto:** Configuración inicial del repositorio, estructura de documentación (Overview, Motivation, Methodology, Datasets, Models, Experiments, Results, Roadmap).
 
     - **Pipeline de datos:** Implementación de `src/utils/download_data.py` para consultas a la API de UniProt (RuBisCO + arqueas) y `src/utils/data_enricher.py` para el cruce con TEMPURA y reglas de fallback jerárquicas (heurística de plantas, promedio por género).
@@ -59,7 +61,7 @@ Use the tabs below to switch between English and Spanish.
     - **CNN Posicional:** Implementación de la arquitectura 1D-CNN (clase `PositionalCNN`) y script de entrenamiento con early stopping (paciencia=15) en `5_Positional_training.ipynb`.
 
     - **Interpretabilidad:** Implementación de Grad-CAM para visualizar la importancia posicional en diferentes grupos térmicos.
-    
+
     - **Herramientas auxiliares:** Utilidades de alineamiento de secuencias (`src/utils/alignment_utils.py` usando BioPython).
 
     ### 📈 Changed (Cambiado)
