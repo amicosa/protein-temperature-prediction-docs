@@ -48,7 +48,9 @@ Use the tabs below to switch between English and Spanish.
     **Interpretation of the results:**
 
     - **Top Panel (Mean Grad-CAM by temperature group):**
+    
         - **Mesophiles (< 45 °C) - Blue line:** The model shows a **striking and exclusive focus on the very end of the alignment** (position ~1000). This suggests the C-terminal region is highly informative for identifying mesophilic RuBisCO, or potentially reflects an artifact of the sequence padding (zeros) used to reach the fixed 1000-length alignment.
+
         - **Thermophiles (45–80 °C) - Orange line & Hyperthermophiles (> 80 °C) - Red line:** The model distributes its attention more broadly across the early and middle regions of the sequence, with a clear peak near the N-terminus (position 0). This indicates that the model uses different structural motifs to predict thermal stability in thermophilic and hyperthermophilic organisms.
 
     - **Bottom Panel (Global balanced aggregate):**

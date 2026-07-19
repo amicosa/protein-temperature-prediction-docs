@@ -47,7 +47,9 @@ Use the tabs below to switch between English and Spanish.
     ## 🎯 Purpose of this Analysis
 
     While global metrics (RMSE, R²) tell us *how good* the model is, they do not tell us *where* it struggles. The purpose of this section is to:
+
     1. Verify if the errors are distributed randomly (a sign of a good model) or if there are systematic biases.
+    
     2. Quantify the error specifically in the under-represented thermophilic range (45–80 °C), as well as in the extreme thermal niches.
 
     ---
@@ -63,8 +65,11 @@ Use the tabs below to switch between English and Spanish.
     | **Hyperthermophiles** | ≥ 80 °C | 120 | **8.47** |
 
     **Analysis of the Stratified Error:**
+
     - **Mesophiles (< 45 °C):** The model achieves an outstanding MAE of **1.61 °C** in this well-sampled region. With 193 test samples available, the CNN successfully learned the highly conserved local motifs characteristic of mesophilic RuBisCO (mostly from plants and algae).
+
     - **Thermophiles (45 – 80 °C):** The MAE skyrockets to **8.36 °C**. Crucially, there are only **25 samples** in this entire test set. This is the quantitative proof of our "Missing Middle" hypothesis: **the model simply cannot generalize in this range due to severe data scarcity**. No amount of architectural complexity can compensate for the lack of examples.
+
     - **Hyperthermophiles (≥ 80 °C):** The MAE is also high (**8.47 °C**) despite having a larger sample size (120 samples). This suggests that predicting hyperthermophilic temperatures is inherently more difficult for the CNN. The 80–105 °C range is wider and more variable than the tight 20–35 °C mesophilic range. Furthermore, hyperthermophilic archaea often exhibit outliers in sequence length (e.g., protein fusions), which the CNN may struggle to resolve accurately.
 
     ---
@@ -78,7 +83,9 @@ Use the tabs below to switch between English and Spanish.
     **Interpretation of the panels:**
 
     - **Left (Real vs. Predicted):** The overall trend is clearly linear (R² = 0.942). Points are tightly clustered around the red dashed line in the mesophilic range (< 45 °C), but become significantly more scattered in the thermophilic and hyperthermophilic ranges (> 45 °C). This visual evidence directly supports the "Missing Middle" hypothesis.
+
     - **Middle (Residuals vs. Predicted):** For predictions below 45 °C, points are symmetrically distributed around the zero line, indicating **no systematic bias** and high stability. However, for predictions above 45 °C, the variance of the residuals increases significantly, with some errors exceeding ±20 °C. This confirms that the model's uncertainty increases dramatically in under-sampled thermal ranges.
+
     - **Right (Residual Distribution Histogram):** The histogram is approximately **normal and centered at zero** (MAE = 4.54 °C), indicating the model is globally unbiased. However, the "tails" are wider than a perfect distribution, reflecting the large residuals observed in the thermophilic and hyperthermophilic predictions.
 
     ---
