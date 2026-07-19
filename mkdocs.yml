@@ -95,7 +95,6 @@ nav:
   - Results:
       - Metrics: results/metrics.md
       - Error Analysis: results/error-analysis.md
-      - Visualizations: results/visualizations.md
 
   - Roadmap: roadmap.md
   - Changelog: changelog.md
