@@ -1,7 +1,5 @@
 # Roadmap
 
-This page outlines the future development plan for the project, structured into four main phases. Each phase is designed to address specific limitations identified in the current work (e.g., the "Missing Middle" and model interpretability) and to expand the project's scope toward broader scientific applications.
-
 Use the tabs below to switch between English and Spanish.
 
 === "English"
